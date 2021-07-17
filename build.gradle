@@ -1,0 +1,16 @@
+apply plugin: 'java'
+
+sourceCompatibility = 15
+
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
+
+repositories {
+    mavenCentral()
+    maven { url 'https://www.jitpack.io' }
+}
+
+dependencies {
+    compileOnly "com.github.Anuken.Mindustry:core:v127"
+    compileOnly "com.github.Anuken.Arc:arc-core:v127"
+}
