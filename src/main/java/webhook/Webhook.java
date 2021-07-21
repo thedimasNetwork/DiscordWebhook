@@ -11,28 +11,29 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.*;
 
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 public class Webhook implements JsonValue {
 
-    private String url;
+    private String webhookUrl;
+    private String method = "POST";
 
     private String username;
     private String avatarUrl;
     private String content;
     private Boolean tts;
     private AllowedMentions allowedMentions;
-
     private final List<Embed> embeds = new ArrayList<>();
 
     public Webhook() {
-        this.url = null;
+        this.webhookUrl = null;
     }
 
-    public Webhook(String url) {
-        this.url = url;
+    public Webhook(String webhookUrl) {
+        this.webhookUrl = webhookUrl;
     }
 
-    public Webhook setUrl(String url) {
-        this.url = url;
+    public Webhook setUrl(String webhookUrl) {
+        this.webhookUrl = webhookUrl;
         return this;
     }
 
@@ -66,16 +67,22 @@ public class Webhook implements JsonValue {
         return this;
     }
 
+    public Webhook editMessage(long id) {
+        webhookUrl += "/messages/" + id;
+        method = "PATCH";
+        return this;
+    }
+
     public HttpResponse<String> execute() throws IOException, InterruptedException {
-        Objects.requireNonNull(url, "Set Webhook URL");
+        Objects.requireNonNull(webhookUrl, "Set Webhook URL");
         if (content == null && embeds.isEmpty()) {
             throw new IllegalArgumentException("Set content or add at least one Embed");
         }
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
+                .uri(URI.create(webhookUrl))
                 .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(toString()))
+                .method(method, HttpRequest.BodyPublishers.ofString(toString()))
                 .build();
 
         return HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
