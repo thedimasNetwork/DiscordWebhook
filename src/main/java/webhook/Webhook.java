@@ -75,13 +75,15 @@ public class Webhook implements JsonValue {
 
     public HttpResponse<String> execute() throws IOException, InterruptedException {
         if (content == null && embeds.isEmpty()) {
-            throw new IllegalArgumentException("Set content or add at least one Embed");
+            throw new IllegalStateException("Set content or add at least one Embed");
         }
         return execute(toString());
     }
 
     public HttpResponse<String> execute(String json) throws IOException, InterruptedException {
-        Objects.requireNonNull(webhookUrl, "Set Webhook URL");
+        if (webhookUrl == null) {
+            throw new IllegalStateException("Set Webhook URL");
+        }
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(webhookUrl))
