@@ -49,21 +49,17 @@ public class AllowedMentions implements JsonValue {
     public JSONObject toJSONObject() {
         JSONObject json = new JSONObject();
 
-        if (parseEveryone || parseRoles || parseUsers) {
-            List<String> parseArray = new ArrayList<>();
-
-            if (parseEveryone) {
-                parseArray.add("everyone");
-            }
-            if (parseRoles) {
-                parseArray.add("roles");
-            }
-            if (parseUsers) {
-                parseArray.add("users");
-            }
-
-            json.put("parse", parseArray.toArray());
+        List<String> parseArray = new ArrayList<>();
+        if (parseEveryone) {
+            parseArray.add("everyone");
         }
+        if (parseRoles) {
+            parseArray.add("roles");
+        }
+        if (parseUsers) {
+            parseArray.add("users");
+        }
+        json.put("parse", parseArray.toArray());
 
         if (roleIds.size() > 0) {
             List<String> rolesArray = new ArrayList<>(roleIds);
