@@ -11,11 +11,10 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.*;
 
-@SuppressWarnings({"unused", "UnusedReturnValue"})
+@SuppressWarnings({"unused", "UnusedReturnValue", "SameParameterValue"})
 public class Webhook implements JsonValue {
 
     private String webhookUrl;
-    private String method = "POST";
 
     private String username;
     private String avatarUrl;
@@ -67,28 +66,50 @@ public class Webhook implements JsonValue {
         return this;
     }
 
-    public Webhook editMessage(long id) {
-        webhookUrl += "/messages/" + id;
-        method = "PATCH";
-        return this;
-    }
-
     public HttpResponse<String> execute() throws IOException, InterruptedException {
-        if (content == null && embeds.isEmpty()) {
-            throw new IllegalStateException("Set content or add at least one Embed");
-        }
-        return execute(toString());
+        return sendRequest("POST");
     }
 
-    public HttpResponse<String> execute(String json) throws IOException, InterruptedException {
+    public HttpResponse<String> editMessage(long messageId) throws IOException, InterruptedException {
+        webhookUrl += "/messages/" + messageId;
+        return sendRequest("PATCH");
+    }
+
+    private HttpResponse<String> sendRequest(String method) throws IOException, InterruptedException {
         if (webhookUrl == null) {
             throw new IllegalStateException("Set Webhook URL");
         }
+        if (content == null && embeds.isEmpty()) {
+            throw new IllegalStateException("Set content or add at least one Embed");
+        }
+        return sendRequest(webhookUrl, method, toString());
+    }
 
+    public static HttpResponse<String> execute(String webhookUrl, String json) throws IOException, InterruptedException {
+        return sendRequest(webhookUrl, "POST", json);
+    }
+
+    public static HttpResponse<String> editMessage(String webhookUrl, long messageId, String json) throws IOException, InterruptedException {
+        return sendRequest(webhookUrl + "/messages/" + messageId, "PATCH", json);
+    }
+
+    public static HttpResponse<String> getMessage(String webhookUrl, long messageId) throws IOException, InterruptedException {
+        return sendRequest(webhookUrl + "/messages/" + messageId, "GET");
+    }
+
+    public static HttpResponse<String> deleteMessage(String webhookUrl, long messageId) throws IOException, InterruptedException {
+        return sendRequest(webhookUrl + "/messages/" + messageId, "DELETE");
+    }
+
+    private static HttpResponse<String> sendRequest(String url, String method) throws IOException, InterruptedException {
+        return sendRequest(url, method, "");
+    }
+
+    private static HttpResponse<String> sendRequest(String url, String method, String body) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(webhookUrl))
+                .uri(URI.create(url))
                 .header("Content-Type", "application/json")
-                .method(method, HttpRequest.BodyPublishers.ofString(json))
+                .method(method, HttpRequest.BodyPublishers.ofString(body))
                 .build();
 
         return HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
