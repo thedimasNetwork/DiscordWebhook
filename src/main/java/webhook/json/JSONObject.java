@@ -51,7 +51,7 @@ public class JSONObject {
         }
         builder.append("}");
 
-        return builder.toString();
+        return builder.toString().replaceAll("\\n", "\\\\n");
     }
 
     private String quote(String string) {
