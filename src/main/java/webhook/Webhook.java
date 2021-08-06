@@ -4,11 +4,15 @@ import webhook.embed.Embed;
 import webhook.json.JSONObject;
 import webhook.json.JsonValue;
 
-import java.io.IOException;
+import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URL;
+import java.net.URLConnection;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @SuppressWarnings({"unused", "UnusedReturnValue", "SameParameterValue"})
@@ -21,14 +25,15 @@ public class Webhook implements JsonValue {
     private String content;
     private Boolean tts;
     private AllowedMentions allowedMentions;
-    private final List<Embed> embeds = new ArrayList<>();
+    private List<Embed> embeds;
 
     public Webhook() {
-        this.webhookUrl = null;
+        this(null);
     }
 
     public Webhook(String webhookUrl) {
         this.webhookUrl = webhookUrl;
+        this.embeds = new LinkedList<>();
     }
 
     public Webhook setUrl(String webhookUrl) {
@@ -58,6 +63,11 @@ public class Webhook implements JsonValue {
 
     public Webhook setAllowedMentions(AllowedMentions allowedMentions) {
         this.allowedMentions = allowedMentions;
+        return this;
+    }
+
+    public Webhook setEmbeds(List<Embed> embeds) {
+        this.embeds = embeds;
         return this;
     }
 
@@ -99,6 +109,29 @@ public class Webhook implements JsonValue {
 
     public static HttpResponse<String> deleteMessage(String webhookUrl, long messageId) throws IOException, InterruptedException {
         return sendRequest(webhookUrl + "/messages/" + messageId, "DELETE");
+    }
+
+
+    public static String sendFile(String webhookUrl, File file) throws IOException {
+        String boundary = Long.toHexString(System.currentTimeMillis());
+        URLConnection connection = new URL(webhookUrl).openConnection();
+        connection.setDoOutput(true);
+        connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+        try (PrintWriter writer = new PrintWriter(new OutputStreamWriter(connection.getOutputStream(), StandardCharsets.UTF_8))) {
+            writer.println("--" + boundary);
+            writer.println("Content-Disposition: form-data; name=\"" + file.getName() + "\"; filename=\"" + file.getName() + "\"");
+            writer.println("Content-Type: text/plain; charset=UTF-8");
+            writer.println();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    writer.println(line);
+                }
+            }
+            writer.println("--" + boundary + "--");
+        }
+        // Connection is lazily executed whenever you request any status.
+        return ((HttpURLConnection) connection).getResponseMessage();
     }
 
     private static HttpResponse<String> sendRequest(String url, String method) throws IOException, InterruptedException {
