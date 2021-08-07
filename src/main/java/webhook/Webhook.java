@@ -12,7 +12,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.*;
 
-@SuppressWarnings({"unused", "UnusedReturnValue", "SameParameterValue"})
+@SuppressWarnings({"unused"})
 public class Webhook implements JsonValue {
 
     private String webhookUrl;
@@ -109,28 +109,26 @@ public class Webhook implements JsonValue {
     }
 
     public static HttpResponse<String> sendFile(String webhookUrl, File file) throws IOException, InterruptedException {
-        MultipartBodyPublisher bodyPublisher = MultipartBodyPublisher.newBuilder()
+        MultipartBodyPublisher body = MultipartBodyPublisher.newBuilder()
                 .addFile("file", file)
                 .build();
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(webhookUrl))
-                .header("Content-Type", "multipart/form-data; boundary=" + bodyPublisher.getBoundary())
-                .method("POST", bodyPublisher)
-                .build();
-
-        return HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+        return sendRequest(webhookUrl, "POST", "multipart/form-data; boundary=" + body.getBoundary(), body);
     }
 
     private static HttpResponse<String> sendRequest(String url, String method) throws IOException, InterruptedException {
-        return sendRequest(url, method, "");
+        return sendRequest(url, method, "application/json", HttpRequest.BodyPublishers.noBody());
     }
 
     private static HttpResponse<String> sendRequest(String url, String method, String body) throws IOException, InterruptedException {
+        return sendRequest(url, method, "application/json", HttpRequest.BodyPublishers.ofString(body));
+    }
+
+    private static HttpResponse<String> sendRequest(String url, String method, String contentType, HttpRequest.BodyPublisher body) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
-                .header("Content-Type", "application/json")
-                .method(method, HttpRequest.BodyPublishers.ofString(body))
+                .header("Content-Type", contentType)
+                .method(method, body)
                 .build();
 
         return HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
