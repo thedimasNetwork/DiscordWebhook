@@ -1,18 +1,15 @@
 package webhook;
 
 import webhook.embed.Embed;
+import webhook.http.MultipartBodyPublisher;
 import webhook.json.JSONObject;
 import webhook.json.JsonValue;
 
 import java.io.*;
-import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @SuppressWarnings({"unused", "UnusedReturnValue", "SameParameterValue"})
@@ -111,27 +108,18 @@ public class Webhook implements JsonValue {
         return sendRequest(webhookUrl + "/messages/" + messageId, "DELETE");
     }
 
+    public static HttpResponse<String> sendFile(String webhookUrl, File file) throws IOException, InterruptedException {
+        MultipartBodyPublisher bodyPublisher = MultipartBodyPublisher.newBuilder()
+                .addFile("file", file)
+                .build();
 
-    public static String sendFile(String webhookUrl, File file) throws IOException {
-        String boundary = Long.toHexString(System.currentTimeMillis());
-        URLConnection connection = new URL(webhookUrl).openConnection();
-        connection.setDoOutput(true);
-        connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-        try (PrintWriter writer = new PrintWriter(new OutputStreamWriter(connection.getOutputStream(), StandardCharsets.UTF_8))) {
-            writer.println("--" + boundary);
-            writer.println("Content-Disposition: form-data; name=\"" + file.getName() + "\"; filename=\"" + file.getName() + "\"");
-            writer.println("Content-Type: text/plain; charset=UTF-8");
-            writer.println();
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    writer.println(line);
-                }
-            }
-            writer.println("--" + boundary + "--");
-        }
-        // Connection is lazily executed whenever you request any status.
-        return ((HttpURLConnection) connection).getResponseMessage();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(webhookUrl))
+                .header("Content-Type", "multipart/form-data; boundary=" + bodyPublisher.getBoundary())
+                .method("POST", bodyPublisher)
+                .build();
+
+        return HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
     }
 
     private static HttpResponse<String> sendRequest(String url, String method) throws IOException, InterruptedException {
