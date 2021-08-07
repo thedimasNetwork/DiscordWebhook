@@ -116,6 +116,19 @@ public class Webhook implements JsonValue {
         return sendRequest(webhookUrl, "POST", "multipart/form-data; boundary=" + body.getBoundary(), body);
     }
 
+    public static HttpResponse<String> sendFiles(String webhookUrl, File[] files) throws IOException, InterruptedException {
+        Map<CharSequence, File> fileMap = new LinkedHashMap<>();
+        for (int i = 0; i < files.length; i++) {
+            fileMap.put("file" + i, files[i]);
+        }
+
+        MultipartBodyPublisher body = MultipartBodyPublisher.newBuilder()
+                .addAllFiles(fileMap)
+                .build();
+
+        return sendRequest(webhookUrl, "POST", "multipart/form-data; boundary=" + body.getBoundary(), body);
+    }
+
     private static HttpResponse<String> sendRequest(String url, String method) throws IOException, InterruptedException {
         return sendRequest(url, method, "application/json", HttpRequest.BodyPublishers.noBody());
     }
