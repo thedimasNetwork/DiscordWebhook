@@ -83,14 +83,14 @@ public class MultipartBodyPublisher implements HttpRequest.BodyPublisher {
 
         private Map<CharSequence, File> getOrCreateFiles() {
             if (files == null) {
-                files = new HashMap<>();
+                files = new LinkedHashMap<>();
             }
             return files;
         }
 
         private Map<CharSequence, String> getOrCreateForms() {
             if (forms == null) {
-                forms = new HashMap<>();
+                forms = new LinkedHashMap<>();
             }
             return forms;
         }
