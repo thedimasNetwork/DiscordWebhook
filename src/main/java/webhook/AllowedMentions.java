@@ -7,6 +7,8 @@ import java.util.*;
 
 public class AllowedMentions implements JsonValue {
 
+    public static final int MAX_IDS_SIZE = 100;
+
     private boolean parseEveryone = false;
     private boolean parseRoles = false;
     private boolean parseUsers = false;
@@ -32,14 +34,14 @@ public class AllowedMentions implements JsonValue {
     }
 
     public AllowedMentions addRole(String roleID) {
-        if (!parseRoles && roleIds.size() < 100) {
+        if (!parseRoles && roleIds.size() < MAX_IDS_SIZE) {
             roleIds.add(roleID);
         }
         return this;
     }
 
     public AllowedMentions addUser(String userId) {
-        if (!parseUsers && userIds.size() < 100) {
+        if (!parseUsers && userIds.size() < MAX_IDS_SIZE) {
             userIds.add(userId);
         }
         return this;
@@ -62,13 +64,11 @@ public class AllowedMentions implements JsonValue {
         json.put("parse", parseArray.toArray());
 
         if (roleIds.size() > 0) {
-            List<String> rolesArray = new ArrayList<>(roleIds);
-            json.put("roles", rolesArray.toArray());
+            json.put("roles", roleIds.toArray());
         }
 
         if (userIds.size() > 0) {
-            List<String> usersArray = new ArrayList<>(userIds);
-            json.put("users", usersArray.toArray());
+            json.put("users", userIds.toArray());
         }
 
         return json;

@@ -119,11 +119,9 @@ public class Embed implements JsonValue {
             json.put("timestamp", timestamp);
         }
 
-        ArrayList<JSONObject> jsonFields = new ArrayList<>();
-        for (Field field : fields) {
-            jsonFields.add(field.toJSONObject());
-        }
-        json.put("fields", jsonFields.toArray());
+        json.put("fields", fields.stream()
+                .map(Field::toJSONObject)
+                .toArray());
 
         return json;
     }

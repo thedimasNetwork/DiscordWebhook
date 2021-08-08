@@ -1,7 +1,7 @@
 package webhook;
 
 import webhook.embed.Embed;
-import webhook.http.MultipartBodyPublisher;
+import webhook.http.*;
 import webhook.json.JSONObject;
 import webhook.json.JsonValue;
 
@@ -11,9 +11,12 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.*;
+import java.util.stream.*;
 
 @SuppressWarnings({"unused"})
 public class Webhook implements JsonValue {
+
+    private static final HttpClient client = HttpClient.newHttpClient();
 
     private String webhookUrl;
 
@@ -22,7 +25,7 @@ public class Webhook implements JsonValue {
     private String content;
     private Boolean tts;
     private AllowedMentions allowedMentions;
-    private List<Embed> embeds;
+    private List<Embed> embeds = new LinkedList<>();
 
     public Webhook() {
         this(null);
@@ -30,7 +33,6 @@ public class Webhook implements JsonValue {
 
     public Webhook(String webhookUrl) {
         this.webhookUrl = webhookUrl;
-        this.embeds = new LinkedList<>();
     }
 
     public Webhook setUrl(String webhookUrl) {
@@ -110,20 +112,19 @@ public class Webhook implements JsonValue {
 
     public static HttpResponse<String> sendFile(String webhookUrl, File file) throws IOException, InterruptedException {
         MultipartBodyPublisher body = MultipartBodyPublisher.newBuilder()
-                .addFile("file", file)
+                .addPart(Part.ofFile("file", file))
                 .build();
 
         return sendRequest(webhookUrl, "POST", "multipart/form-data; boundary=" + body.getBoundary(), body);
     }
 
-    public static HttpResponse<String> sendFiles(String webhookUrl, File[] files) throws IOException, InterruptedException {
-        Map<CharSequence, File> fileMap = new LinkedHashMap<>();
-        for (int i = 0; i < files.length; i++) {
-            fileMap.put("file" + i, files[i]);
-        }
+    public static HttpResponse<String> sendFiles(String webhookUrl, File... files) throws IOException, InterruptedException {
+        List<Part> fileParts = IntStream.range(0, files.length)
+                .mapToObj(i -> Part.ofFile("file" + i, files[i]))
+                .collect(Collectors.toCollection(LinkedList::new));
 
         MultipartBodyPublisher body = MultipartBodyPublisher.newBuilder()
-                .addAllFiles(fileMap)
+                .addAllParts(fileParts)
                 .build();
 
         return sendRequest(webhookUrl, "POST", "multipart/form-data; boundary=" + body.getBoundary(), body);
@@ -137,14 +138,16 @@ public class Webhook implements JsonValue {
         return sendRequest(url, method, "application/json", HttpRequest.BodyPublishers.ofString(body));
     }
 
-    private static HttpResponse<String> sendRequest(String url, String method, String contentType, HttpRequest.BodyPublisher body) throws IOException, InterruptedException {
+    private static HttpResponse<String> sendRequest(String url, String method, String contentType, HttpRequest.BodyPublisher body)
+            throws IOException, InterruptedException {
+
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Content-Type", contentType)
                 .method(method, body)
                 .build();
 
-        return HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+        return client.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
     @Override
@@ -161,11 +164,9 @@ public class Webhook implements JsonValue {
         }
 
         if (!embeds.isEmpty()) {
-            List<JSONObject> embedsArray = new ArrayList<>();
-            for (Embed embed : embeds) {
-                embedsArray.add(embed.toJSONObject());
-            }
-            json.put("embeds", embedsArray.toArray());
+            json.put("embeds", embeds.stream()
+                    .map(Embed::toJSONObject)
+                    .toArray());
         }
         return json;
     }
