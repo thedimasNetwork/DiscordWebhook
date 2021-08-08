@@ -110,9 +110,9 @@ public class Webhook implements JsonValue {
         return sendRequest(webhookUrl + "/messages/" + messageId, "DELETE");
     }
 
-    public static HttpResponse<String> sendFile(String webhookUrl, File file) throws IOException, InterruptedException {
+    public static HttpResponse<String> sendMultipart(String webhookUrl, Part... parts) throws IOException, InterruptedException {
         MultipartBodyPublisher body = MultipartBodyPublisher.newBuilder()
-                .addPart(Part.ofFile("file", file))
+                .addAllParts(parts)
                 .build();
 
         return sendRequest(webhookUrl, "POST", "multipart/form-data; boundary=" + body.getBoundary(), body);

@@ -26,6 +26,10 @@ public class Part {
         }
     }
 
+    public static Part ofBytes(CharSequence name, CharSequence contentType, byte[] content) {
+        return new Part(name, contentType, content);
+    }
+
     public static Part ofString(CharSequence name, CharSequence contentType, String content) {
         return new Part(name, contentType, content.getBytes(StandardCharsets.UTF_8));
     }

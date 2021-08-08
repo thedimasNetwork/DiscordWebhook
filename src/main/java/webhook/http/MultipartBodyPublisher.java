@@ -88,6 +88,11 @@ public class MultipartBodyPublisher implements HttpRequest.BodyPublisher {
             return this;
         }
 
+        public Builder addAllParts(Part... parts) {
+            Collections.addAll(getOrCreateParts(), parts);
+            return this;
+        }
+
         public MultipartBodyPublisher build() {
             return new MultipartBodyPublisher(parts == null ? List.of() : parts);
         }
