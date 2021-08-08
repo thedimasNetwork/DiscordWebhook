@@ -11,6 +11,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.*;
 
 @SuppressWarnings({"unused"})
@@ -75,16 +76,16 @@ public class Webhook implements JsonValue {
         return this;
     }
 
-    public HttpResponse<String> execute() throws IOException, InterruptedException {
+    public CompletableFuture<HttpResponse<String>> execute() {
         return sendRequest("POST");
     }
 
-    public HttpResponse<String> editMessage(long messageId) throws IOException, InterruptedException {
+    public CompletableFuture<HttpResponse<String>> editMessage(long messageId) {
         webhookUrl += "/messages/" + messageId;
         return sendRequest("PATCH");
     }
 
-    private HttpResponse<String> sendRequest(String method) throws IOException, InterruptedException {
+    private CompletableFuture<HttpResponse<String>> sendRequest(String method) {
         if (webhookUrl == null) {
             throw new IllegalStateException("Set Webhook URL");
         }
@@ -94,23 +95,23 @@ public class Webhook implements JsonValue {
         return sendRequest(webhookUrl, method, toString());
     }
 
-    public static HttpResponse<String> execute(String webhookUrl, String json) throws IOException, InterruptedException {
+    public static CompletableFuture<HttpResponse<String>> execute(String webhookUrl, String json) {
         return sendRequest(webhookUrl, "POST", json);
     }
 
-    public static HttpResponse<String> editMessage(String webhookUrl, long messageId, String json) throws IOException, InterruptedException {
+    public static CompletableFuture<HttpResponse<String>> editMessage(String webhookUrl, long messageId, String json) {
         return sendRequest(webhookUrl + "/messages/" + messageId, "PATCH", json);
     }
 
-    public static HttpResponse<String> getMessage(String webhookUrl, long messageId) throws IOException, InterruptedException {
+    public static CompletableFuture<HttpResponse<String>> getMessage(String webhookUrl, long messageId) {
         return sendRequest(webhookUrl + "/messages/" + messageId, "GET");
     }
 
-    public static HttpResponse<String> deleteMessage(String webhookUrl, long messageId) throws IOException, InterruptedException {
+    public static CompletableFuture<HttpResponse<String>> deleteMessage(String webhookUrl, long messageId) {
         return sendRequest(webhookUrl + "/messages/" + messageId, "DELETE");
     }
 
-    public static HttpResponse<String> sendMultipart(String webhookUrl, Part... parts) throws IOException, InterruptedException {
+    public static CompletableFuture<HttpResponse<String>> sendMultipart(String webhookUrl, Part... parts) {
         MultipartBodyPublisher body = MultipartBodyPublisher.newBuilder()
                 .addAllParts(parts)
                 .build();
@@ -118,7 +119,7 @@ public class Webhook implements JsonValue {
         return sendRequest(webhookUrl, "POST", "multipart/form-data; boundary=" + body.getBoundary(), body);
     }
 
-    public static HttpResponse<String> sendFiles(String webhookUrl, File... files) throws IOException, InterruptedException {
+    public static CompletableFuture<HttpResponse<String>> sendFiles(String webhookUrl, File... files) throws IOException, InterruptedException {
         List<Part> fileParts = IntStream.range(0, files.length)
                 .mapToObj(i -> Part.ofFile("file" + i, files[i]))
                 .collect(Collectors.toCollection(LinkedList::new));
@@ -130,24 +131,22 @@ public class Webhook implements JsonValue {
         return sendRequest(webhookUrl, "POST", "multipart/form-data; boundary=" + body.getBoundary(), body);
     }
 
-    private static HttpResponse<String> sendRequest(String url, String method) throws IOException, InterruptedException {
+    private static CompletableFuture<HttpResponse<String>> sendRequest(String url, String method) {
         return sendRequest(url, method, "application/json", HttpRequest.BodyPublishers.noBody());
     }
 
-    private static HttpResponse<String> sendRequest(String url, String method, String body) throws IOException, InterruptedException {
+    private static CompletableFuture<HttpResponse<String>> sendRequest(String url, String method, String body) {
         return sendRequest(url, method, "application/json", HttpRequest.BodyPublishers.ofString(body));
     }
 
-    private static HttpResponse<String> sendRequest(String url, String method, String contentType, HttpRequest.BodyPublisher body)
-            throws IOException, InterruptedException {
-
+    private static CompletableFuture<HttpResponse<String>> sendRequest(String url, String method, String contentType, HttpRequest.BodyPublisher body) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Content-Type", contentType)
                 .method(method, body)
                 .build();
 
-        return client.send(request, HttpResponse.BodyHandlers.ofString());
+        return client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
     }
 
     @Override
