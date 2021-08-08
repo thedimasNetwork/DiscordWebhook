@@ -2,7 +2,7 @@ package webhook.http;
 
 import java.util.Objects;
 
-public class FilePart extends Part{
+public class FilePart extends Part {
 
     private final CharSequence filename;
 
@@ -17,7 +17,7 @@ public class FilePart extends Part{
 
     @Override
     public boolean equals(Object o) {
-        if (this == o){
+        if (this == o) {
             return true;
         }
         if (!(o instanceof FilePart)) {
@@ -26,7 +26,7 @@ public class FilePart extends Part{
         if (!super.equals(o)) {
             return false;
         }
-        FilePart filePart = (FilePart)o;
+        FilePart filePart = (FilePart) o;
         return filename.equals(filePart.filename);
     }
 

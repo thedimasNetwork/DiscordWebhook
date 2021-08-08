@@ -17,7 +17,7 @@ public class Part {
         this.content = Objects.requireNonNull(content, "content");
     }
 
-    public static FilePart ofFile(CharSequence name, File file){
+    public static FilePart ofFile(CharSequence name, File file) {
         try {
             return new FilePart(name, Files.probeContentType(file.toPath()),
                     Files.readAllBytes(file.toPath()), file.getName());
@@ -51,13 +51,13 @@ public class Part {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o){
+        if (this == o) {
             return true;
         }
         if (!(o instanceof Part)) {
             return false;
         }
-        Part part = (Part)o;
+        Part part = (Part) o;
         return name.equals(part.name) &&
                 Objects.equals(contentType, part.contentType) &&
                 Arrays.equals(content, part.content);

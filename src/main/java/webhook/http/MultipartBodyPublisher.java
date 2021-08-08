@@ -35,8 +35,8 @@ public class MultipartBodyPublisher implements HttpRequest.BodyPublisher {
                 StringBuilder header = new StringBuilder();
                 header.append("\"").append(part.getName()).append("\"");
                 if (part instanceof FilePart) {
-                   FilePart filePart = (FilePart)part;
-                   header.append("; filename=\"").append(filePart.getFilename()).append("\"");
+                    FilePart filePart = (FilePart) part;
+                    header.append("; filename=\"").append(filePart.getFilename()).append("\"");
                 }
 
                 if (part.getContentType() != null) {
