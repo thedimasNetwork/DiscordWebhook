@@ -26,7 +26,10 @@ public class Part {
         }
     }
 
-    public static Part ofBytes(CharSequence name, CharSequence contentType, byte[] content) {
+    public static Part ofBytes(CharSequence name, CharSequence contentType, byte[] content, String filename) {
+        if (filename != null) {
+            return new FilePart(name, contentType, content, filename);
+        }
         return new Part(name, contentType, content);
     }
 
