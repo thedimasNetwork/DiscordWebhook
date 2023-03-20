@@ -1,9 +1,12 @@
 package webhook;
 
-import webhook.json.JSONObject;
+import webhook.json.JsonObject;
 import webhook.json.JsonValue;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class AllowedMentions implements JsonValue {
 
@@ -48,8 +51,8 @@ public class AllowedMentions implements JsonValue {
     }
 
     @Override
-    public JSONObject toJSONObject() {
-        JSONObject json = new JSONObject();
+    public JsonObject toJsonObject() {
+        JsonObject json = new JsonObject();
 
         List<String> parseArray = new ArrayList<>();
         if (parseEveryone) {

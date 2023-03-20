@@ -1,6 +1,6 @@
 package webhook.embed.elements;
 
-import webhook.json.JSONObject;
+import webhook.json.JsonObject;
 import webhook.json.JsonValue;
 
 public class Footer implements JsonValue {
@@ -22,7 +22,7 @@ public class Footer implements JsonValue {
     }
 
     @Override
-    public JSONObject toJSONObject() {
-        return new JSONObject().put("text", text).put("icon_url", iconUrl);
+    public JsonObject toJsonObject() {
+        return new JsonObject().put("text", text).put("icon_url", iconUrl);
     }
 }

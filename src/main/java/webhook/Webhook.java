@@ -1,20 +1,22 @@
 package webhook;
 
 import webhook.embed.Embed;
-import webhook.http.*;
-import webhook.json.JSONObject;
+import webhook.http.MultipartBodyPublisher;
+import webhook.http.Part;
+import webhook.json.JsonObject;
 import webhook.json.JsonValue;
 
-import java.io.*;
+import java.io.File;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-@SuppressWarnings({"unused"})
 public class Webhook implements JsonValue {
 
     private static final HttpClient client = HttpClient.newHttpClient();
@@ -119,7 +121,7 @@ public class Webhook implements JsonValue {
         return sendRequest(webhookUrl, "POST", "multipart/form-data; boundary=" + body.getBoundary(), body);
     }
 
-    public static CompletableFuture<HttpResponse<String>> sendFiles(String webhookUrl, File... files) throws IOException, InterruptedException {
+    public static CompletableFuture<HttpResponse<String>> sendFiles(String webhookUrl, File... files) {
         List<Part> fileParts = IntStream.range(0, files.length)
                 .mapToObj(i -> Part.ofFile("file" + i, files[i]))
                 .collect(Collectors.toCollection(LinkedList::new));
@@ -150,8 +152,8 @@ public class Webhook implements JsonValue {
     }
 
     @Override
-    public JSONObject toJSONObject() {
-        JSONObject json = new JSONObject();
+    public JsonObject toJsonObject() {
+        JsonObject json = new JsonObject();
 
         json.put("username", this.username);
         json.put("avatar_url", this.avatarUrl);
@@ -159,12 +161,12 @@ public class Webhook implements JsonValue {
         json.put("tts", this.tts);
 
         if (allowedMentions != null) {
-            json.put("allowed_mentions", this.allowedMentions.toJSONObject());
+            json.put("allowed_mentions", this.allowedMentions.toJsonObject());
         }
 
         if (!embeds.isEmpty()) {
             json.put("embeds", embeds.stream()
-                    .map(Embed::toJSONObject)
+                    .map(Embed::toJsonObject)
                     .toArray());
         }
         return json;
@@ -172,6 +174,7 @@ public class Webhook implements JsonValue {
 
     @Override
     public String toString() {
-        return toJSONObject().toString();
+        return toJsonObject().toString();
     }
+
 }

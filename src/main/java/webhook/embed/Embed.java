@@ -1,12 +1,12 @@
 package webhook.embed;
 
-import webhook.json.JSONObject;
-import webhook.json.JsonValue;
 import webhook.embed.elements.*;
-import webhook.embed.elements.Image;
+import webhook.json.JsonObject;
+import webhook.json.JsonValue;
 
 import java.awt.Color;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Embed implements JsonValue {
 
@@ -89,10 +89,9 @@ public class Embed implements JsonValue {
         return this;
     }
 
-
     @Override
-    public JSONObject toJSONObject() {
-        JSONObject json = new JSONObject();
+    public JsonObject toJsonObject() {
+        JsonObject json = new JsonObject();
 
         json.put("title", title);
         json.put("url", url);
@@ -100,19 +99,19 @@ public class Embed implements JsonValue {
         json.put("color", color);
 
         if (author != null) {
-            json.put("author", author.toJSONObject());
+            json.put("author", author.toJsonObject());
         }
 
         if (thumbnail != null) {
-            json.put("thumbnail", thumbnail.toJSONObject());
+            json.put("thumbnail", thumbnail.toJsonObject());
         }
 
         if (image != null) {
-            json.put("image", image.toJSONObject());
+            json.put("image", image.toJsonObject());
         }
 
         if (footer != null) {
-            json.put("footer", footer.toJSONObject());
+            json.put("footer", footer.toJsonObject());
         }
 
         if (timestamp != null) {
@@ -120,7 +119,7 @@ public class Embed implements JsonValue {
         }
 
         json.put("fields", fields.stream()
-                .map(Field::toJSONObject)
+                .map(Field::toJsonObject)
                 .toArray());
 
         return json;

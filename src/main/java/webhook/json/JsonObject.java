@@ -5,11 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class JSONObject {
+public class JsonObject {
 
     private final Map<String, Object> map = new HashMap<>();
 
-    public JSONObject put(String key, Object value) {
+    public JsonObject put(String key, Object value) {
         if (value != null) {
             map.put(key, value);
         }
@@ -33,7 +33,7 @@ public class JSONObject {
                 builder.append(Integer.valueOf(String.valueOf(val)));
             } else if (val instanceof Boolean) {
                 builder.append(Boolean.valueOf(String.valueOf(val)));
-            } else if (val instanceof JSONObject) {
+            } else if (val instanceof JsonObject) {
                 builder.append(val);
             } else if (val.getClass().isArray()) {
                 builder.append("[");

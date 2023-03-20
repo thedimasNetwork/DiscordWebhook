@@ -1,6 +1,6 @@
 package webhook.embed.elements;
 
-import webhook.json.JSONObject;
+import webhook.json.JsonObject;
 import webhook.json.JsonValue;
 
 public class Field implements JsonValue {
@@ -28,7 +28,7 @@ public class Field implements JsonValue {
     }
 
     @Override
-    public JSONObject toJSONObject() {
-        return new JSONObject().put("name", name).put("value", value).put("inline", inline);
+    public JsonObject toJsonObject() {
+        return new JsonObject().put("name", name).put("value", value).put("inline", inline);
     }
 }
