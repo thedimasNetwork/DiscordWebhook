@@ -1,13 +1,13 @@
-package webhook.embed.elements;
+package webhook.model.embed.elements;
 
 import webhook.json.JsonObject;
 import webhook.json.JsonValue;
 
-public class Image implements JsonValue {
+public class Thumbnail implements JsonValue {
 
     private final String url;
 
-    public Image(String url) {
+    public Thumbnail(String url) {
         this.url = url;
     }
 

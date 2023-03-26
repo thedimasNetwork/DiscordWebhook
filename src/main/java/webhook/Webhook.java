@@ -1,10 +1,11 @@
 package webhook;
 
-import webhook.embed.Embed;
 import webhook.http.MultipartBodyPublisher;
 import webhook.http.Part;
 import webhook.json.JsonObject;
 import webhook.json.JsonValue;
+import webhook.model.AllowedMentions;
+import webhook.model.embed.Embed;
 
 import java.io.File;
 import java.net.URI;

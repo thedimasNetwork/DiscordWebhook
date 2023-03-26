@@ -1,4 +1,4 @@
-package webhook.embed.elements;
+package webhook.model.embed.elements;
 
 import webhook.json.JsonObject;
 import webhook.json.JsonValue;

@@ -1,8 +1,8 @@
-package webhook.embed;
+package webhook.model.embed;
 
-import webhook.embed.elements.*;
 import webhook.json.JsonObject;
 import webhook.json.JsonValue;
+import webhook.model.embed.elements.*;
 
 import java.awt.Color;
 import java.util.ArrayList;

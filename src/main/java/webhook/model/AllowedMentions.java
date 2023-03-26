@@ -1,4 +1,4 @@
-package webhook;
+package webhook.model;
 
 import webhook.json.JsonObject;
 import webhook.json.JsonValue;
