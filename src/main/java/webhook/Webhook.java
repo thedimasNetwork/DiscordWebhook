@@ -2,10 +2,7 @@ package webhook;
 
 import webhook.http.MultipartBodyPublisher;
 import webhook.http.Part;
-import webhook.json.JsonObject;
-import webhook.json.JsonValue;
-import webhook.model.AllowedMentions;
-import webhook.model.embed.Embed;
+import webhook.model.Payload;
 
 import java.io.File;
 import java.net.URI;
@@ -18,88 +15,47 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class Webhook implements JsonValue {
+public class Webhook {
 
     private static final HttpClient client = HttpClient.newHttpClient();
 
     private String webhookUrl;
 
-    private String username;
-    private String avatarUrl;
-    private String content;
-    private Boolean tts;
-    private AllowedMentions allowedMentions;
-    private List<Embed> embeds = new LinkedList<>();
-
     public Webhook() {
-        this(null);
     }
 
     public Webhook(String webhookUrl) {
         this.webhookUrl = webhookUrl;
     }
 
-    public Webhook setUrl(String webhookUrl) {
+    public void setUrl(String webhookUrl) {
         this.webhookUrl = webhookUrl;
-        return this;
     }
 
-    public Webhook setUsername(String username) {
-        this.username = username;
-        return this;
+    public CompletableFuture<HttpResponse<String>> sendMessage(Payload payload) {
+        return sendMessage(webhookUrl, payload);
     }
 
-    public Webhook setAvatarUrl(String avatarUrl) {
-        this.avatarUrl = avatarUrl;
-        return this;
+    public CompletableFuture<HttpResponse<String>> editMessage(long messageId, Payload payload) {
+        return editMessage(webhookUrl, messageId, payload);
     }
 
-    public Webhook setContent(String content) {
-        this.content = content;
-        return this;
-    }
-
-    public Webhook setTts(boolean tts) {
-        this.tts = tts;
-        return this;
-    }
-
-    public Webhook setAllowedMentions(AllowedMentions allowedMentions) {
-        this.allowedMentions = allowedMentions;
-        return this;
-    }
-
-    public Webhook setEmbeds(List<Embed> embeds) {
-        this.embeds = embeds;
-        return this;
-    }
-
-    public Webhook addEmbed(Embed embed) {
-        this.embeds.add(embed);
-        return this;
-    }
-
-    public CompletableFuture<HttpResponse<String>> execute() {
-        return sendRequest("POST");
-    }
-
-    public CompletableFuture<HttpResponse<String>> editMessage(long messageId) {
-        webhookUrl += "/messages/" + messageId;
-        return sendRequest("PATCH");
-    }
-
-    private CompletableFuture<HttpResponse<String>> sendRequest(String method) {
-        if (webhookUrl == null) {
-            throw new IllegalStateException("Set Webhook URL");
+    public static CompletableFuture<HttpResponse<String>> sendMessage(String webhookUrl, Payload payload) {
+        if (payload.getContent() == null && payload.getEmbeds().isEmpty()) {
+            throw new IllegalArgumentException("Payload must contain content or at least one Embed");
         }
-        if (content == null && embeds.isEmpty()) {
-            throw new IllegalStateException("Set content or add at least one Embed");
-        }
-        return sendRequest(webhookUrl, method, toString());
+        return sendMessage(webhookUrl, payload.toJsonString());
     }
 
-    public static CompletableFuture<HttpResponse<String>> execute(String webhookUrl, String json) {
+    public static CompletableFuture<HttpResponse<String>> sendMessage(String webhookUrl, String json) {
         return sendRequest(webhookUrl, "POST", json);
+    }
+
+    public static CompletableFuture<HttpResponse<String>> editMessage(String webhookUrl, long messageId, Payload payload) {
+        if (payload.getContent() == null && payload.getEmbeds().isEmpty()) {
+            throw new IllegalArgumentException("Payload must contain content or at least one Embed");
+        }
+        return editMessage(webhookUrl, messageId, payload.toJsonString());
     }
 
     public static CompletableFuture<HttpResponse<String>> editMessage(String webhookUrl, long messageId, String json) {
@@ -151,31 +107,4 @@ public class Webhook implements JsonValue {
 
         return client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
     }
-
-    @Override
-    public JsonObject toJsonObject() {
-        JsonObject json = new JsonObject();
-
-        json.put("username", this.username);
-        json.put("avatar_url", this.avatarUrl);
-        json.put("content", this.content);
-        json.put("tts", this.tts);
-
-        if (allowedMentions != null) {
-            json.put("allowed_mentions", this.allowedMentions.toJsonObject());
-        }
-
-        if (!embeds.isEmpty()) {
-            json.put("embeds", embeds.stream()
-                    .map(Embed::toJsonObject)
-                    .toArray());
-        }
-        return json;
-    }
-
-    @Override
-    public String toString() {
-        return toJsonObject().toString();
-    }
-
 }
