@@ -1,8 +1,8 @@
-package webhook.model.embed;
+package ua.pp.stellarnet.discord.webhook.model.embed;
 
-import webhook.json.JsonObject;
-import webhook.json.JsonValue;
-import webhook.model.embed.elements.*;
+import ua.pp.stellarnet.discord.webhook.json.JsonObject;
+import ua.pp.stellarnet.discord.webhook.json.JsonValue;
+import ua.pp.stellarnet.discord.webhook.model.embed.elements.*;
 
 import java.awt.Color;
 import java.util.ArrayList;

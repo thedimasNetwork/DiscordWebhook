@@ -1,9 +1,10 @@
-package webhook.http;
+package ua.pp.stellarnet.discord.webhook.http;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Objects;
 
 public class Part {
     private final CharSequence name;

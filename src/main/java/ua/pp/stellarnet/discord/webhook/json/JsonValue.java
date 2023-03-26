@@ -1,4 +1,4 @@
-package webhook.json;
+package ua.pp.stellarnet.discord.webhook.json;
 
 public interface JsonValue {
 

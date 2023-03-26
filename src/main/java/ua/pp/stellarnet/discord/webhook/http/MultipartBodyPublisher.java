@@ -1,4 +1,4 @@
-package webhook.http;
+package ua.pp.stellarnet.discord.webhook.http;
 
 import java.net.http.HttpRequest;
 import java.nio.ByteBuffer;

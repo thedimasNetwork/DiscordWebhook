@@ -1,9 +1,9 @@
-package webhook;
+package ua.pp.stellarnet.discord.webhook;
 
-import webhook.http.Method;
-import webhook.http.MultipartBodyPublisher;
-import webhook.http.Part;
-import webhook.model.Payload;
+import ua.pp.stellarnet.discord.webhook.http.Method;
+import ua.pp.stellarnet.discord.webhook.http.MultipartBodyPublisher;
+import ua.pp.stellarnet.discord.webhook.http.Part;
+import ua.pp.stellarnet.discord.webhook.model.Payload;
 
 import java.io.File;
 import java.net.URI;

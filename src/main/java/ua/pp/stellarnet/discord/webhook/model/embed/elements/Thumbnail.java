@@ -1,7 +1,7 @@
-package webhook.model.embed.elements;
+package ua.pp.stellarnet.discord.webhook.model.embed.elements;
 
-import webhook.json.JsonObject;
-import webhook.json.JsonValue;
+import ua.pp.stellarnet.discord.webhook.json.JsonObject;
+import ua.pp.stellarnet.discord.webhook.json.JsonValue;
 
 public class Thumbnail implements JsonValue {
 
